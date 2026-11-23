@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appvuelos_capebe.data.local.CuentaVuelosStore
 import com.example.appvuelos_capebe.ui.components.CodigoQrRealCard
 import com.example.appvuelos_capebe.ui.components.Footer
 import com.example.appvuelos_capebe.ui.components.GoogleCalendarHelper
@@ -151,6 +152,7 @@ fun ConfirmacionVuelo(
                     Button(
                         onClick = {
                             vueloViewModel.crearVueloYGenerarQr(vuelo) { codigoFinal, syncOk ->
+                                CuentaVuelosStore.registrarCodigoParaCuenta(context, nombreSocio, codigoFinal)
                                 viewModel.actualizarCodigoConfirmado(codigoFinal)
                                 viewModel.guardarVueloConfirmado()
                                 confirmado = true
@@ -204,7 +206,10 @@ fun ConfirmacionVuelo(
                     }
 
                     OutlinedButton(
-                        onClick = onNavigateHome,
+                        onClick = {
+                            viewModel.limpiarFormularioNuevaReserva()
+                            onNavigateHome()
+                        },
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, Color(0xFF38BDF8)),
                         modifier = Modifier

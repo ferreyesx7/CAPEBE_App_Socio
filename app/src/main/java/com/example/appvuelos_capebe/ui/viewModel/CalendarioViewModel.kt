@@ -227,6 +227,38 @@ class CalendarioViewModel : ViewModel() {
         }
     }
 
+    fun limpiarFormularioNuevaReserva() {
+        val avionOperativo = uiState.aeronaves.firstOrNull { !it.enMantenimiento }
+        uiState = uiState.copy(
+            vueloElegido = null,
+            aeronaveSeleccionada = avionOperativo ?: uiState.aeronaveSeleccionada,
+            nombreInvitado = "",
+            rutInvitado = "",
+            oficinaBanco = "",
+            esSocio = true,
+            telefonoMovil = "",
+            cantidadPasajeros = 1,
+            errorFormulario = null
+        )
+        cargarFlotaDesdeServidor()
+    }
+
+    fun limpiarAlCambiarCuenta() {
+        val avionOperativo = uiState.aeronaves.firstOrNull { !it.enMantenimiento }
+        uiState = uiState.copy(
+            vueloElegido = null,
+            vuelosGuardados = emptyList(),
+            aeronaveSeleccionada = avionOperativo ?: uiState.aeronaveSeleccionada,
+            nombreInvitado = "",
+            rutInvitado = "",
+            oficinaBanco = "",
+            esSocio = true,
+            telefonoMovil = "",
+            cantidadPasajeros = 1,
+            errorFormulario = null
+        )
+    }
+
     private fun validarRutChileno(rutTexto: String): Boolean {
         val limpio = rutTexto.replace(".", "").replace(" ", "").uppercase()
         val partes = limpio.split("-")
