@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appvuelos_capebe.data.local.CuentaVuelosStore
 import com.example.appvuelos_capebe.ui.components.CodigoQrRealCard
 import com.example.appvuelos_capebe.ui.components.Footer
 import com.example.appvuelos_capebe.ui.components.GoogleCalendarHelper
@@ -41,18 +43,38 @@ import com.example.appvuelos_capebe.ui.viewModel.VueloViewModel
 
 @Composable
 fun MisVuelosScreen(
+    nombreSocio: String = "",
     viewModel: CalendarioViewModel,
     vueloViewModel: VueloViewModel = viewModel(),
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(nombreSocio) {
         vueloViewModel.cargarVuelos()
     }
 
-    val vuelosRemotos = vueloViewModel.listaVuelos
-    val vuelosLocales = viewModel.uiState.vuelosGuardados
+    val codigosDeEstaCuenta = remember(nombreSocio, vueloViewModel.listaVuelos, viewModel.uiState.vuelosGuardados) {
+        CuentaVuelosStore.obtenerCodigosDeCuenta(context, nombreSocio)
+    }
+
+    val vuelosRemotos = vueloViewModel.listaVuelos.filter { vuelo ->
+        val codigo = (vuelo.codigoVerificacion ?: "").trim().uppercase()
+        val porCodigo = codigo.isNotBlank() && codigosDeEstaCuenta.contains(codigo)
+        val porNombre = nombreSocio.isNotBlank() &&
+            nombreSocio != "Socio CAPEBE" &&
+            vuelo.pasajero.trim().equals(nombreSocio.trim(), ignoreCase = true)
+        porCodigo || porNombre
+    }
+
+    val vuelosLocales = viewModel.uiState.vuelosGuardados.filter { vuelo ->
+        val codigo = vuelo.codigoVerificacion.trim().uppercase()
+        val porCodigo = codigo.isNotBlank() && codigosDeEstaCuenta.contains(codigo)
+        val porNombre = nombreSocio.isNotBlank() &&
+            nombreSocio != "Socio CAPEBE" &&
+            vuelo.nombreInvitado.trim().equals(nombreSocio.trim(), ignoreCase = true)
+        porCodigo || porNombre
+    }
 
     Scaffold(
         topBar = { Header("MIS VUELOS Y PASES QR") },
@@ -67,6 +89,15 @@ fun MisVuelosScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            if (nombreSocio.isNotBlank()) {
+                Text(
+                    text = "Cuenta activa: $nombreSocio",
+                    color = Color(0xFF38BDF8),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             if (vueloViewModel.cargando) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
