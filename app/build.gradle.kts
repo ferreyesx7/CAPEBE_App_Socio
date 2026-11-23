@@ -67,4 +67,11 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+}
+
+// Evita el bug de bloqueo de baselineProfiles en AGP 9.x en Windows al firmar APK
+tasks.matching { it.name.contains("ArtProfile", ignoreCase = true) }.configureEach {
+    enabled = false
 }

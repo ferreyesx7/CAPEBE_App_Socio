@@ -73,6 +73,9 @@ fun AppNavigation() {
         composable(Routes.PIN) {
             PinScreen(
                 onPinSuccess = { nombreGuardado ->
+                    if (!usuarioActual.equals(nombreGuardado, ignoreCase = true)) {
+                        calendarioViewModel.limpiarAlCambiarCuenta()
+                    }
                     usuarioActual = nombreGuardado
                     navController.navigate(Routes.PRINCIPAL) {
                         popUpTo(Routes.PIN) { inclusive = true }
@@ -80,6 +83,7 @@ fun AppNavigation() {
                 },
                 onCambiarUsuario = {
                     usuarioActual = "Socio CAPEBE"
+                    calendarioViewModel.limpiarAlCambiarCuenta()
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.PIN) { inclusive = true }
                     }
@@ -98,6 +102,9 @@ fun AppNavigation() {
                     }
                 },
                 onLoginSuccess = { nombreGuardado ->
+                    if (!usuarioActual.equals(nombreGuardado, ignoreCase = true)) {
+                        calendarioViewModel.limpiarAlCambiarCuenta()
+                    }
                     usuarioActual = nombreGuardado
                     navController.navigate(Routes.PRINCIPAL) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
@@ -168,6 +175,7 @@ fun AppNavigation() {
 
         composable(Routes.MISVUELOS) {
             MisVuelosScreen(
+                nombreSocio = usuarioActual,
                 viewModel = calendarioViewModel,
                 onNavigateBack = {
                     navController.popBackStack()
